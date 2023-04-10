@@ -65,8 +65,13 @@ namespace E_Commerce.Controllers
 
             _unitOfWork.OrdersItems.AddRange(orderItems);
             if (await _unitOfWork.Complete() < 1)
+            {
+                _unitOfWork.Orders.Delete(order);
+                if (await _unitOfWork.Complete() < 1)
+                    BadRequest("Error in removing the order from the database");
                 BadRequest("Error in adding the order items to the database");
-
+            }
+   
             _unitOfWork.CartItems.Delete(entities
                 .Select(item => item.CartItem));
             if (await _unitOfWork.Complete() < 1)
